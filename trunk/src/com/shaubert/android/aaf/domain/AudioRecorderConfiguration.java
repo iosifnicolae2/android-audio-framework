@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 public class AudioRecorderConfiguration {
 
+    public static final String ENCODER = "encoder";
 	public static final String BITRATE = "bitrate";
 	public static final String BANDWIDTH = "bandwidth";	
 	public static final String AUDIO_FORMAT = "audio-format";
