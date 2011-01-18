@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AudioFramework</string>    
+    <string name="app_name">AudioFramework</string>
+    
+    <string name="encoder_not_supported_error">Audio encoder \"%%d\" is not supported</string>
+    <string name="audio_data_read_error">Audio data read error</string>
 </resources>

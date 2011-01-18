@@ -16,10 +16,8 @@ public interface AudioRecorder {
 	
 	void record() throws HumanReadableException;
 	void pause() throws HumanReadableException;
+	void resume() throws HumanReadableException;
 	void stop() throws HumanReadableException;
-	
-	void reset() throws HumanReadableException;
-	void release() throws HumanReadableException;
-	
+		
 	HumanReadableException getLastError();
 }
