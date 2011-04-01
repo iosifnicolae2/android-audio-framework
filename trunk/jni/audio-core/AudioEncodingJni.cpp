@@ -92,13 +92,22 @@ void close(JNIEnv* env, jobject thiz) {
 	}
 }
 
-int methodsCount = 5;
+JNIEXPORT
+void setLogging(JNIEnv* env, jobject thiz, jboolean on) {
+	if (controller) {
+		controller->getEncoder()->setLogging(on);
+	}
+}
+
+
+int methodsCount = 6;
 JNINativeMethod methods[] = {
-	{"initialize",	"([I)Z", (bool*)initialize },
-	{"getOutputBufferSize",	"()I",	(int*)getOutputBufferSize },
-	{"encode", "([BII[B)I", (void*)encode},
-	{"flush", "()[B", (void*)flush},
-	{"close", "()V", (void*)close}
+	{"nativeInitialize", "([I)Z", (bool*)initialize },
+	{"nativeGetOutputBufferSize", "(I)I",	(int*)getOutputBufferSize },
+	{"nativeEncode", "([BII[B)I", (void*)encode},
+	{"nativeFlush", "()[B", (void*)flush},
+	{"nativeClose", "()V", (void*)close},
+	{"nativeSetLogging", "(Z)V", (void*)setLogging}
 };
 const char *classPathName = "com/shaubert/android/aaf/jni/AudioCoreJNI";
 
