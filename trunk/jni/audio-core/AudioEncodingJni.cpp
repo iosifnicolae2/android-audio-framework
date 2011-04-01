@@ -11,16 +11,19 @@ const int bitPerSample = 6;
 
 const int configLen = 7;
 
-AudioEncodingController* controller;
+AudioEncodingController* controller = NULL;
 unsigned char * encodingBuffer = NULL;
 int encodingBufferSize = 0;
+
+bool logging = true;
 
 JNIEXPORT
 jboolean initialize(JNIEnv* env, jobject thiz, jintArray configuration) {
 	EncoderConfiguration *encoderConfiguration = new EncoderConfiguration();
 	int inConfig[configLen];
 
-	env->GetIntArrayRegion(configuration, 0, configLen, (jint*)inConfig);
+	if (logging) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "reading configuration");
+	env->GetIntArrayRegion(configuration, 0, configLen, (jint*)&inConfig);
 	encoderConfiguration->setInSamplerate(inConfig[inSamplerate]);
 	encoderConfiguration->setNumChannels(inConfig[numChannels]);
 	encoderConfiguration->setQuality(inConfig[quality]);
@@ -29,8 +32,10 @@ jboolean initialize(JNIEnv* env, jobject thiz, jintArray configuration) {
 	encoderConfiguration->setBitPerSample(inConfig[bitPerSample]);
 
 	if (!controller) {
+		if (logging) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "creating new controller...");
 		controller = new AudioEncodingController();
 	}
+	if (logging) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "initializing controller...");
 	return controller->init(inConfig[encoderType], encoderConfiguration);
 }
 
@@ -85,15 +90,22 @@ jbyteArray flush(JNIEnv* env, jobject thiz) {
 JNIEXPORT
 void close(JNIEnv* env, jobject thiz) {
 	if (controller) {
+		if (logging) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "closing controller...");
 		controller->close();
 		delete controller;
+		controller = NULL;
+		if (logging) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "controller has been closed");
+		if (logging) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "clearing buffers...");
 		if (encodingBuffer) delete[] encodingBuffer;
+		encodingBuffer = NULL;
 		encodingBufferSize = 0;
 	}
+	if (logging) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "close() finished");
 }
 
 JNIEXPORT
 void setLogging(JNIEnv* env, jobject thiz, jboolean on) {
+	logging = on;
 	if (controller) {
 		controller->getEncoder()->setLogging(on);
 	}
@@ -116,14 +128,14 @@ int jniRegisterNativeMethods(JNIEnv* env, const char* className,
 {
     jclass clazz;
 
-    __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG,	"Registering %s natives", className);
+    if (logging) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG,	"Registering %s natives", className);
     clazz = env->FindClass(className);
     if (clazz == NULL) {
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,	"Native registration unable to find class '%s'", className);
+    	if (logging) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,	"Native registration unable to find class '%s'", className);
         return -1;
     }
     if (env->RegisterNatives(clazz, gMethods, numMethods) < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,	"RegisterNatives failed for '%s'", className);
+    	if (logging) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,	"RegisterNatives failed for '%s'", className);
         return -1;
     }
     return 0;
@@ -135,12 +147,12 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     jint result = -1;
 
     if (vm->GetEnv((void**) &env, JNI_VERSION_1_4) != JNI_OK) {
-		__android_log_print(ANDROID_LOG_ERROR, LOG_TAG,	"ERROR: GetEnv failed");
+    	if (logging) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,	"ERROR: GetEnv failed");
         goto bail;
     }
 
 	if (jniRegisterNativeMethods(env, classPathName, methods, methodsCount) < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,	"ERROR: native registration failed");
+        if (logging) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,	"ERROR: native registration failed");
         goto bail;
     }
 

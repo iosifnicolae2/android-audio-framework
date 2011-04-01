@@ -1,8 +1,15 @@
 package com.shaubert.android.aaf.jni;
 
+import android.util.Log;
+
 
 public class AudioCoreJNI {
 
+    static {        
+        System.loadLibrary("core");
+        Log.d(AudioCoreJNI.class.getSimpleName(), "library loaded");
+    }
+    
     private static AudioCoreJNI instance; 
     
     public static AudioCoreJNI getInstance() {
@@ -23,6 +30,7 @@ public class AudioCoreJNI {
         if (!nativeInitialize(configuration.getConfiguration())) {
             throw new AudioCoreNativeException("initialization failed");
         } else {
+            initialized = true;
             nativeSetLogging(logging);
         }
     }
