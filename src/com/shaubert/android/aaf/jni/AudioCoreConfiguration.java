@@ -31,8 +31,37 @@ public class AudioCoreConfiguration {
         configuration = new int[SIZE];
         configuration[ENCODER_TYPE_POSITION] = encoderType.code;
         this.encoderType = encoderType;
+        
+        switch (encoderType) {
+            case AAC: 
+                setDefaultAACConfiguration();          
+                break;
+            case MP3: 
+                setDefaultMP3Configuration();          
+                break;
+            case OGG: 
+                setDefaultOGGConfiguration();          
+                break;
+        }
     }
         
+    private void setDefaultOGGConfiguration() {
+    }
+
+    private void setDefaultMP3Configuration() {
+        setInSamplerate(11025);
+        setNumChannels(1);
+        setQuality(7);
+        setMode(3);
+        setBitrate(64);
+    }
+
+    private void setDefaultAACConfiguration() {
+        setInSamplerate(8000);
+        setBitrate(16);
+        setQuality(100);
+    }
+    
     int[] getConfiguration() {
         return configuration;
     }
