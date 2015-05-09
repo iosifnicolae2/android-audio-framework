@@ -1,0 +1,1 @@
+Easy and powerfull framework allows you to record audio in MP3, AAC, and OGG formats.
